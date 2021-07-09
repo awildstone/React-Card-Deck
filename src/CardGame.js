@@ -30,7 +30,7 @@ const CardGame = () => {
         async function getCard() {
             const { deck_id } = deck;
             try {
-                const res = await axios.get(`${BASE_URL}/${deck_id}/draw/`);
+                const res = await axios.get(`${BASE_URL}/${deck_id}/draw`);
                 if (res.data.remaining !== 0) {
                     setDrawnDeck(drawnDeck => [...drawnDeck, res.data.cards[0]]);
                 } else {
@@ -52,28 +52,28 @@ const CardGame = () => {
             clearInterval(timer.current);
             timer.current = null;
           }
-     }, [autoDraw, setAutoDraw, deck]);
+     }, [autoDraw, setAutoDraw]);
 
-    /** Shuffle the deck and restart the board. */
-    // useEffect(() => {
-    //     const { deck_id } = deck;
-    //     async function shuffleDeck() {
-    //         const res = await axios.get(`${BASE_URL}/${deck_id}/shuffle`);
-    //         setDeck(res.data);
-    //         console.log(`DECK: ${res.data.deck_id}`)
-    //     }
-    //     shuffleDeck();
-    // }, [setDrawnDeck]);
+    /** Shuffle the existing deck and restart the board. */
+    useEffect(() => {
+        async function shuffleDeck() {
+            const { deck_id } = deck;
+            const res = await axios.get(`${BASE_URL}/${deck_id}/shuffle`);
+            setDeck(res.data);
+            console.log(`DECK: ${res.data.deck_id}`)
+        }
+        if (deck && drawnDeck.length === 0) {
+            shuffleDeck();
+        }
+    }, [drawnDeck, setDrawnDeck]);
 
     /** Toggles auto draw on/off */
     const startDrawing = () => {
         setAutoDraw(autoDraw => !autoDraw);
     };
 
-    /** Clears existing gameboard and gets a new deck. */
+    /** Clears existing array of drawn cards. */
     const newDeck = () => {
-        // window.location.reload(); this reloads the window
-        //clear the existing drawn cards deck
         setDrawnDeck(() => []);
     }
 
